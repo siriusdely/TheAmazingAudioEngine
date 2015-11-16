@@ -636,6 +636,12 @@ typedef enum {
 - (void)stop;
 
 /*!
+ * Maintain audio session and stop autio engine
+ * This is useful in cases where we need the audio session to remain active, while we save resources by stopping the audio thread
+ */
+- (void)maintainSessionAndStop;
+
+/*!
  * Set a new audio description
  *
  *  This will cause the audio controller to stop, teardown and recreate its rendering resources,

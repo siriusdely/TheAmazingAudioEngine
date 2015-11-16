@@ -1158,6 +1158,27 @@ static OSStatus ioUnitRenderNotifyCallback(void *inRefCon, AudioUnitRenderAction
     [_messageQueue stopPolling];
 }
 
+- (void)maintainSessionAndStop {
+    NSLog(@"TAAE: Stopping Engine");
+    
+    AECheckOSStatus(AUGraphStop(_audioGraph), "AUGraphStop");
+#if !TARGET_OS_IPHONE
+    if ( _inputEnabled ) {
+        AECheckOSStatus(AudioOutputUnitStop(_iAudioUnit), "AudioOutputUnitStop (OSX input)");
+    }
+#endif
+    
+    if ( self.running ) {
+        // Ensure top IO unit is stopped (AUGraphStop may fail to stop it)
+        AECheckOSStatus(AudioOutputUnitStop(_ioAudioUnit), "AudioOutputUnitStop");
+    }
+    
+    AEMessageQueueProcessMessagesOnRealtimeThread(_messageQueue);
+    [_messageQueue stopPolling];
+    
+    _started = NO;
+}
+
 #pragma mark - Channel and channel group management
 
 - (void)addChannels:(NSArray*)channels {
